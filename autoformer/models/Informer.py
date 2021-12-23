@@ -1,11 +1,13 @@
+import numpy as np
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-from utils.masking import TriangularCausalMask, ProbMask
-from layers.Transformer_EncDec import Decoder, DecoderLayer, Encoder, EncoderLayer, ConvLayer
-from layers.SelfAttention_Family import FullAttention, ProbAttention, AttentionLayer
 from layers.Embed import DataEmbedding
-import numpy as np
+from layers.SelfAttention_Family import (AttentionLayer,
+                                         FullAttention, ProbAttention)
+from layers.Transformer_EncDec import (ConvLayer, Decoder, DecoderLayer,
+                                       Encoder, EncoderLayer)
+from utils.masking import ProbMask, TriangularCausalMask
 
 
 class Model(nn.Module):
@@ -13,7 +15,7 @@ class Model(nn.Module):
     Informer with Propspare attention in O(LlogL) complexity
     """
     def __init__(self, configs):
-        super(Model, self).__init__()
+        super().__init__()
         self.pred_len = configs.pred_len
         self.output_attention = configs.output_attention
 

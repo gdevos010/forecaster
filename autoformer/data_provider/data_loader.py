@@ -1,12 +1,12 @@
 import os
+import warnings
+
 import numpy as np
 import pandas as pd
-import os
 import torch
-from torch.utils.data import Dataset, DataLoader
 from sklearn.preprocessing import StandardScaler
+from torch.utils.data import DataLoader, Dataset
 from utils.timefeatures import time_features
-import warnings
 
 warnings.filterwarnings('ignore')
 
@@ -286,7 +286,7 @@ class Dataset_Custom(Dataset):
 
     def inverse_transform(self, data):
         return self.scaler.inverse_transform(data)
-    
+
 
 class Dataset_Pred(Dataset):
     def __init__(self, root_path, flag='pred', size=None,

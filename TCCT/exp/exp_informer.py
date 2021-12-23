@@ -5,13 +5,12 @@ import warnings
 import numpy as np
 import torch
 import torch.nn as nn
-from torch import optim
-from torch.utils.data import DataLoader
-
 from data.data_loader import (Dataset_Custom, Dataset_ETT_hour,
                               Dataset_ETT_minute, Dataset_Pred)
 from exp.exp_basic import Exp_Basic
 from models.model import Informer, InformerStack
+from torch import optim
+from torch.utils.data import DataLoader
 from utils.metrics import metric
 from utils.tools import EarlyStopping, adjust_learning_rate
 

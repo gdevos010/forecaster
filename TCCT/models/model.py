@@ -1,7 +1,6 @@
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-
 from models.attn import (AttentionLayer, FullAttention,
                          LogSparceAttention, ProbAttention)
 from models.decoder import Decoder, DecoderLayer

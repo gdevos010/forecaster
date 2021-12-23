@@ -1,11 +1,14 @@
+import math
+
+import numpy as np
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-from layers.Embed import DataEmbedding, DataEmbedding_wo_pos
 from layers.AutoCorrelation import AutoCorrelation, AutoCorrelationLayer
-from layers.Autoformer_EncDec import Encoder, Decoder, EncoderLayer, DecoderLayer, my_Layernorm, series_decomp
-import math
-import numpy as np
+from layers.Autoformer_EncDec import (Decoder, DecoderLayer, Encoder,
+                                      EncoderLayer, my_Layernorm,
+                                      series_decomp)
+from layers.Embed import DataEmbedding, DataEmbedding_wo_pos
 
 
 class Model(nn.Module):
@@ -14,7 +17,7 @@ class Model(nn.Module):
     with inherent O(LlogL) complexity
     """
     def __init__(self, configs):
-        super(Model, self).__init__()
+        super().__init__()
         self.seq_len = configs.seq_len
         self.label_len = configs.label_len
         self.pred_len = configs.pred_len

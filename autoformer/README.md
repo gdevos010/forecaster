@@ -70,7 +70,7 @@ We will keep adding series forecasting models to expand this repo:
 
 ## Citation
 
-If you find this repo useful, please cite our paper. 
+If you find this repo useful, please cite our paper.
 
 ```
 @inproceedings{wu2021autoformer,
@@ -94,4 +94,3 @@ https://github.com/zhouhaoyi/Informer2020
 https://github.com/zhouhaoyi/ETDataset
 
 https://github.com/laiguokun/multivariate-time-series-data
-
