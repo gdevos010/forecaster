@@ -1,0 +1,15 @@
+name: informer
+channels:
+  - conda-forge
+  - defaults
+dependencies:
+  - python=3.8.12
+  - pip
+  - matplotlib
+  - numpy
+  - pandas
+  - scikit-learn
+  - pytorch
+  - torchmetrics
+  - python-dotenv
+  - pre-commit
