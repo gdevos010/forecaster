@@ -1,6 +1,7 @@
 import argparse
 import copy
 import traceback
+from pathlib import Path
 
 import pytorch_lightning as pl
 from pytorch_lightning.utilities import rank_zero_info
@@ -12,11 +13,13 @@ import utils.data
 import utils.email
 import utils.logging
 
+project_dir = Path(__file__).resolve().parents[0]
+
 DATA_DICT = {
-    "ETTh1": {"path": "datasets/ETT/ETTh1.csv", "target": "OT", "frequency": "h"},
-    "ETTh2": {"path": "datasets/ETT/ETTh2.csv", "target": "OT", "frequency": "h"},
-    "ETTm1": {"path": "datasets/ETT/ETTm1.csv", "target": "OT", "frequency": "t"},
-    "ETTm2": {"path": "datasets/ETT/ETTm2.csv", "target": "OT", "frequency": "t"},
+    "ETTh1": {"path": f"{project_dir}/datasets/ETT/ETTh1.csv", "target": "OT", "frequency": "h"},
+    "ETTh2": {"path": f"{project_dir}/datasets/ETT/ETTh2.csv", "target": "OT", "frequency": "h"},
+    "ETTm1": {"path": f"{project_dir}/datasets/ETT/ETTm1.csv", "target": "OT", "frequency": "t"},
+    "ETTm2": {"path": f"{project_dir}/datasets/ETT/ETTm2.csv", "target": "OT", "frequency": "t"},
 }
 
 MODEL_DICT = {"informer": models.Informer, "informer_stack": models.InformerStack}
