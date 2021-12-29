@@ -42,7 +42,9 @@ def main(args):
 
     rank_zero_info(vars(args))
 
-    model = MODEL_DICT.get(args.model_name)(out_len=args.pred_len, distil=(not args.no_distil), **vars(args))
+    model = MODEL_DICT.get(args.model_name)(
+        out_len=args.pred_len, distil=(not args.no_distil), **vars(args)
+    )
     task = tasks.InformerForecastTask(model, scaler=copy.deepcopy(dm.scaler), **vars(args))
 
     callbacks = [
@@ -60,6 +62,7 @@ def main(args):
     trainer.fit(task, dm)
     results = trainer.test(datamodule=dm)
     return results
+
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
@@ -107,7 +110,9 @@ if __name__ == "__main__":
         default=None,
         help="Path to save the log in console as text file",
     )
-    parser.add_argument("--send_email", "--email", action="store_true", help="Send email when finished")
+    parser.add_argument(
+        "--send_email", "--email", action="store_true", help="Send email when finished"
+    )
 
     temp_args, _ = parser.parse_known_args()
 

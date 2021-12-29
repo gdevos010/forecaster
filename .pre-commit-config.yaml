@@ -21,6 +21,7 @@ repos:
     rev: v2.29.1
     hooks:
     -   id: pyupgrade
+        exclude: ^ref_repos/
         args: ['--py38-plus']
 
 #-    repo: https://github.com/pre-commit/mirrors-mypy
@@ -35,4 +36,12 @@ repos:
     rev: v5.9.3
     hooks:
     -   id: isort
+        exclude: ^ref_repos/
         args: [-e]
+
+-   repo: https://github.com/psf/black
+    rev: 21.12b0
+    hooks:
+    -   id: black
+        exclude: ^ref_repos/
+        args: [--safe, "--line-length", "100"]

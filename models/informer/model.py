@@ -2,12 +2,10 @@ import argparse
 
 import torch.nn as nn
 
-from models.informer.attention import (AttentionLayer, FullAttention,
-                                       ProbSparseAttention)
+from models.informer.attention import AttentionLayer, FullAttention, ProbSparseAttention
 from models.informer.decoder import Decoder, DecoderLayer
 from models.informer.embedding import DataEmbedding
-from models.informer.encoder import (Encoder, EncoderLayer,
-                                     EncoderStack, SelfAttentionDistil)
+from models.informer.encoder import Encoder, EncoderLayer, EncoderStack, SelfAttentionDistil
 
 
 class BaseInformer(nn.Module):
@@ -55,7 +53,9 @@ class BaseInformer(nn.Module):
                         mix=mix_attention,
                     ),
                     AttentionLayer(
-                        FullAttention(False, factor, attention_dropout=dropout, output_attention=False),
+                        FullAttention(
+                            False, factor, attention_dropout=dropout, output_attention=False
+                        ),
                         d_model,
                         n_heads,
                         mix=False,
@@ -101,8 +101,12 @@ class BaseInformer(nn.Module):
         parser.add_argument("--c_out", type=int, default=7, help="Output size")
         parser.add_argument("--d_model", type=int, default=512, help="Dimension of the model")
         parser.add_argument("--n_heads", type=int, default=8, help="Number of heads")
-        parser.add_argument("--num_encoder_layers", type=int, default=2, help="Number of encoder layers")
-        parser.add_argument("--num_decoder_layers", type=int, default=1, help="Number of decoder layers")
+        parser.add_argument(
+            "--num_encoder_layers", type=int, default=2, help="Number of encoder layers"
+        )
+        parser.add_argument(
+            "--num_decoder_layers", type=int, default=1, help="Number of decoder layers"
+        )
         parser.add_argument("--d_ff", type=int, default=2048, help="Dimension of FCN")
         parser.add_argument("--factor", type=int, default=5, help="ProbSparse Attention factor")
         parser.add_argument(
@@ -190,7 +194,12 @@ class Informer(BaseInformer):
             [
                 EncoderLayer(
                     AttentionLayer(
-                        Attention(False, factor, attention_dropout=dropout, output_attention=output_attention),
+                        Attention(
+                            False,
+                            factor,
+                            attention_dropout=dropout,
+                            output_attention=output_attention,
+                        ),
                         d_model,
                         n_heads,
                         mix=False,
@@ -202,7 +211,9 @@ class Informer(BaseInformer):
                 )
                 for _ in range(num_encoder_layers)
             ],
-            [SelfAttentionDistil(d_model) for _ in range(num_encoder_layers - 1)] if distil else None,
+            [SelfAttentionDistil(d_model) for _ in range(num_encoder_layers - 1)]
+            if distil
+            else None,
             nn.LayerNorm(d_model),
         )
 
@@ -257,7 +268,12 @@ class InformerStack(BaseInformer):
                 [
                     EncoderLayer(
                         AttentionLayer(
-                            Attention(False, factor, attention_dropout=dropout, output_attention=output_attention),
+                            Attention(
+                                False,
+                                factor,
+                                attention_dropout=dropout,
+                                output_attention=output_attention,
+                            ),
                             d_model,
                             n_heads,
                             mix=False,

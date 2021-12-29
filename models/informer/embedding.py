@@ -106,7 +106,9 @@ class DataEmbedding(nn.Module):
         self.value_embedding = TokenEmbedding(c_in, d_model)
         self.position_embedding = PositionalEmbedding(d_model)
         if embedding_type != "timefeature":
-            self.temporal_embedding = TemporalEmbedding(d_model, embedding_type=embedding_type, frequency=frequency)
+            self.temporal_embedding = TemporalEmbedding(
+                d_model, embedding_type=embedding_type, frequency=frequency
+            )
         else:
             self.temporal_embedding = TimeFeatureEmbedding(d_model, frequency=frequency)
 

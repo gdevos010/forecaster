@@ -108,7 +108,6 @@ def time_features_from_frequency_str(freq_str: str) -> List[TimeFeature]:
         ],
     }
 
-
     offset = to_offset(freq_str)
     feature_classes: List
     for offset_type, feature_classes in features_by_offsets.items():
@@ -133,7 +132,7 @@ def time_features_from_frequency_str(freq_str: str) -> List[TimeFeature]:
     raise RuntimeError(supported_freq_msg)
 
 
-def time_features2(dates, freq='h'):
+def time_features2(dates, freq="h"):
     return np.vstack([feat(dates) for feat in time_features_from_frequency_str(freq)])
 
 
@@ -157,4 +156,6 @@ def time_features(dates, time_encoding=True, frequency: str = "h"):
         }
         return dates[FREQUENCY_DICT[frequency.lower()]].values
     dates = pd.to_datetime(dates.date.values)
-    return np.vstack([feat(dates) for feat in time_features_from_frequency_str(frequency)]).transpose(1, 0)
+    return np.vstack(
+        [feat(dates) for feat in time_features_from_frequency_str(frequency)]
+    ).transpose(1, 0)
