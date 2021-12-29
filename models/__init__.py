@@ -1,1 +1,2 @@
-from models.informer.model import Informer, InformerStack
+from models.informer.model import Informer
+from models.informer.model import InformerStack

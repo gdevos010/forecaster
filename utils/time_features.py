@@ -110,9 +110,8 @@ def time_features_from_frequency_str(freq_str: str) -> List[TimeFeature]:
 
     offset = to_offset(freq_str)
     feature_classes: List
-    for offset_type, feature_classes in features_by_offsets.items():
+    for offset_type, feature_classes in features_by_offsets.items():  # type: ignore
         if isinstance(offset, offset_type):
-
             return [cls() for cls in feature_classes]
 
     supported_freq_msg = f"""

@@ -1,4 +1,19 @@
 repos:
+-   repo: https://github.com/psf/black
+    rev: 21.12b0
+    hooks:
+    -   id: black
+        language_version: python3.8
+        exclude: ^ref_repos/
+        args: [--safe, "--line-length", "100"]
+
+-   repo: https://github.com/PyCQA/flake8
+    rev: 4.0.1
+    hooks:
+    -   id: flake8
+        exclude: ^ref_repos/
+        language_version: python3
+
 -   repo: https://github.com/pre-commit/pre-commit-hooks
     rev: v4.0.1
     hooks:
@@ -24,24 +39,25 @@ repos:
         exclude: ^ref_repos/
         args: ['--py38-plus']
 
-#-    repo: https://github.com/pre-commit/mirrors-mypy
-#     rev: v0.910-1
-#     hooks:
-#     -   id: mypy
-#         exclude: ^ref_repos/
-#         args: [--ignore-missing-imports]
-#         additional_dependencies: [types-PyYAML, types-requests, types-PyMySQL]
+-    repo: https://github.com/pre-commit/mirrors-mypy
+     rev: v0.910-1
+     hooks:
+     -   id: mypy
+         exclude: ^ref_repos/
+         args: [--ignore-missing-imports]
+         additional_dependencies: [types-PyYAML, types-requests, types-PyMySQL]
 
--   repo: https://github.com/pre-commit/mirrors-isort
-    rev: v5.9.3
-    hooks:
-    -   id: isort
-        exclude: ^ref_repos/
-        args: [-e]
 
--   repo: https://github.com/psf/black
-    rev: 21.12b0
+-   repo: https://github.com/asottile/reorder_python_imports
+    rev: v2.6.0
     hooks:
-    -   id: black
+    -   id: reorder-python-imports
         exclude: ^ref_repos/
-        args: [--safe, "--line-length", "100"]
+        args: [--py38-plus]
+
+#-   repo: https://github.com/pre-commit/mirrors-isort
+#    rev: v5.9.3
+#    hooks:
+#    -   id: isort
+#        exclude: ^ref_repos/
+#        args: [-e, "--profile", "black"]

@@ -2,10 +2,16 @@ import argparse
 
 import torch.nn as nn
 
-from models.informer.attention import AttentionLayer, FullAttention, ProbSparseAttention
-from models.informer.decoder import Decoder, DecoderLayer
+from models.informer.attention import AttentionLayer
+from models.informer.attention import FullAttention
+from models.informer.attention import ProbSparseAttention
+from models.informer.decoder import Decoder
+from models.informer.decoder import DecoderLayer
 from models.informer.embedding import DataEmbedding
-from models.informer.encoder import Encoder, EncoderLayer, EncoderStack, SelfAttentionDistil
+from models.informer.encoder import Encoder
+from models.informer.encoder import EncoderLayer
+from models.informer.encoder import EncoderStack
+from models.informer.encoder import SelfAttentionDistil
 
 
 class BaseInformer(nn.Module):

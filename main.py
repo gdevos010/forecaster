@@ -118,7 +118,7 @@ if __name__ == "__main__":
 
     # specific arguments
     parser = utils.data.ETTDataModule.add_data_specific_arguments(parser)
-    parser = MODEL_DICT.get(temp_args.model_name).add_model_specific_arguments(parser)
+    parser = MODEL_DICT.get(temp_args.model_name).add_model_specific_arguments(parser)  # type: ignore
     parser = tasks.InformerForecastTask.add_task_specific_arguments(parser)
 
     args = parser.parse_args()

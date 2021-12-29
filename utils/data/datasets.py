@@ -3,7 +3,8 @@ import torch
 from torch.utils.data import Dataset
 
 from utils.data.scalers import StandardScaler
-from utils.time_features import time_features, time_features2
+from utils.time_features import time_features
+from utils.time_features import time_features2
 
 
 class ETTDataset(Dataset):

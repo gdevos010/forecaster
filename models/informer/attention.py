@@ -4,7 +4,8 @@ import numpy as np
 import torch
 import torch.nn as nn
 
-from models.informer.masking import prob_mask, triangular_causal_mask
+from models.informer.masking import prob_mask
+from models.informer.masking import triangular_causal_mask
 
 
 class FullAttention(nn.Module):
@@ -173,7 +174,7 @@ class LogSparceAttention(nn.Module):
     def forward(self, queries, keys, values, attention_mask):
         B, L, H, E = queries.shape
         _, S, _, D = values.shape
-        scale = self.scale or 1.0 / sqrt(E)
+        scale = self.scale or 1.0 / math.sqrt(E)
 
         scores = torch.einsum("blhe,bshe->bhls", queries, keys)
         # if self.mask_flag:

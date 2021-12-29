@@ -1,5 +1,4 @@
 # from https://github.com/martinwhl/Informer-PyTorch-Lightning/blob/main/utils/email.py
-
 import smtplib
 from email.mime.text import MIMEText
 from email.utils import formataddr
