@@ -83,6 +83,8 @@ class ETTDataModule(pl.LightningDataModule):
             batch_size=self.batch_size,
             shuffle=True,
             num_workers=self.num_workers,
+            persistent_workers=True,
+            pin_memory=True,
         )
 
     def val_dataloader(self):
@@ -93,6 +95,8 @@ class ETTDataModule(pl.LightningDataModule):
             batch_size=self.batch_size,
             shuffle=False,
             num_workers=self.num_workers,
+            persistent_workers=True,
+            pin_memory=True,
         )
 
     def test_dataloader(self):
@@ -100,6 +104,8 @@ class ETTDataModule(pl.LightningDataModule):
             self.test_dataset,
             batch_size=self.batch_size,
             num_workers=self.num_workers,
+            persistent_workers=True,
+            pin_memory=True,
             drop_last=True,
         )
 

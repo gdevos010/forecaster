@@ -4,6 +4,7 @@ import torch.nn as nn
 
 from models.informer.attention import AttentionLayer
 from models.informer.attention import FullAttention
+from models.informer.attention import LogSparseAttention
 from models.informer.attention import ProbSparseAttention
 from models.informer.decoder import Decoder
 from models.informer.decoder import DecoderLayer
@@ -11,6 +12,7 @@ from models.informer.embedding import DataEmbedding
 from models.informer.encoder import Encoder
 from models.informer.encoder import EncoderLayer
 from models.informer.encoder import EncoderStack
+from models.informer.encoder import FocusLayer
 from models.informer.encoder import SelfAttentionDistil
 
 
@@ -35,6 +37,9 @@ class BaseInformer(nn.Module):
         output_attention=False,
         distil=True,
         mix_attention=False,
+        csp=False,
+        dilated=False,
+        passthrough=False,
         **kwargs
     ):
         super().__init__()
@@ -45,16 +50,28 @@ class BaseInformer(nn.Module):
         self.enc_embedding = DataEmbedding(enc_in, d_model, embedding_type, frequency, dropout)
         self.dec_embedding = DataEmbedding(dec_in, d_model, embedding_type, frequency, dropout)
 
-        Attention = ProbSparseAttention if attention_type == "prob" else FullAttention
+        self.csp = 2 if csp else 1
+
+        if attention_type == "prob":
+            Attention = ProbSparseAttention
+            # print('prob')
+        elif attention_type == "log":
+            Attention = LogSparseAttention
+            # print('log')
+        else:
+            Attention = FullAttention
+            # print('full')
 
         self.encoder = None
+        self.dilated = dilated
+        self.passthrough = passthrough
 
         self.decoder = Decoder(
             [
                 DecoderLayer(
                     AttentionLayer(
                         Attention(True, factor, attention_dropout=dropout, output_attention=False),
-                        d_model,
+                        d_model // self.csp,
                         n_heads,
                         mix=mix_attention,
                     ),
@@ -70,6 +87,7 @@ class BaseInformer(nn.Module):
                     d_ff,
                     dropout=dropout,
                     activation=activation,
+                    DCSP=self.csp,
                 )
                 for _ in range(num_decoder_layers)
             ],
@@ -122,11 +140,11 @@ class BaseInformer(nn.Module):
         )
         parser.add_argument("--dropout", type=float, default=0.05, help="Dropout probability")
         parser.add_argument(
-            "--attention",
+            "--attention_type",
             "--attn",
             type=str,
             default="prob",
-            choices=["prob", "full"],
+            choices=["prob", "full", "log"],
             help="Type of attention used in the encoder",
         )
         parser.add_argument(
@@ -149,6 +167,26 @@ class BaseInformer(nn.Module):
             action="store_true",
             help="Whether to mix attention in generative decoder",
         )
+        parser.add_argument(
+            "--csp",
+            "--CSP",
+            action="store_true",
+            help="whether to use CSPAttention, default=False",
+            default=False,
+        )
+        parser.add_argument(
+            "--dilated",
+            action="store_true",
+            help="whether to use dilated causal convolution in encoder, default=False",
+            default=False,
+        )
+        parser.add_argument(
+            "--passthrough",
+            action="store_true",
+            help="whether to use passthrough mechanism in encoder, default=False",
+            default=False,
+        )
+
         return parser
 
 
@@ -173,6 +211,9 @@ class Informer(BaseInformer):
         output_attention=False,
         distil=True,
         mix_attention=False,
+        csp=False,
+        dilated=False,
+        passthrough=False,
         **kwargs
     ):
         super().__init__(
@@ -194,19 +235,42 @@ class Informer(BaseInformer):
             output_attention=output_attention,
             distil=distil,
             mix_attention=mix_attention,
+            csp=csp,
+            dilated=dilated,
+            passthrough=passthrough,
         )
-        Attention = ProbSparseAttention if attention_type == "prob" else FullAttention
+
+        # Attention
+        self.csp = 2 if csp else 1
+
+        if attention_type == "prob":
+            attention = ProbSparseAttention
+            # print('prob')
+        elif attention_type == "log":
+            attention = LogSparseAttention
+            # print('log')
+        else:
+            attention = FullAttention
+            # print('full')
+
+        self.pconv = 0
+        for i in range(num_encoder_layers):
+            e_num = 2 ** i
+            self.pconv += e_num
+
+        self.dilated = dilated
+        self.passthrough = passthrough
         self.encoder = Encoder(
             [
                 EncoderLayer(
                     AttentionLayer(
-                        Attention(
+                        attention(
                             False,
                             factor,
                             attention_dropout=dropout,
                             output_attention=output_attention,
                         ),
-                        d_model,
+                        (d_model // self.csp),
                         n_heads,
                         mix=False,
                     ),
@@ -214,13 +278,21 @@ class Informer(BaseInformer):
                     d_ff,
                     dropout=dropout,
                     activation=activation,
+                    ECSP=csp,
                 )
                 for _ in range(num_encoder_layers)
             ],
-            [SelfAttentionDistil(d_model) for _ in range(num_encoder_layers - 1)]
+            [
+                SelfAttentionDistil(d_model, ((2 ** el) if self.dilated else 1))
+                for el in range(num_encoder_layers - 1)
+            ]
             if distil
             else None,
             nn.LayerNorm(d_model),
+            Focus_layer=FocusLayer(d_model, d_model) if self.passthrough else None,
+            Passthrough_layer=nn.Conv1d(self.pconv * d_model, d_model, 1)
+            if self.passthrough
+            else None,
         )
 
 
@@ -245,6 +317,9 @@ class InformerStack(BaseInformer):
         output_attention=False,
         distil=True,
         mix_attention=False,
+        CSP=False,
+        dilated=False,
+        passthrough=False,
         **kwargs
     ):
         super().__init__(
@@ -267,14 +342,23 @@ class InformerStack(BaseInformer):
             distil=distil,
             mix_attention=mix_attention,
         )
-        Attention = ProbSparseAttention if attention_type == "prob" else FullAttention
+        if attention_type == "prob":
+            attention = ProbSparseAttention
+            # print('prob')
+        elif attention_type == "log":
+            attention = LogSparseAttention
+            # print('log')
+        else:
+            attention = FullAttention
+            # print('full')
+
         stacks = list(range(num_encoder_layers, 2, -1))  # customize here
         encoders = [
             Encoder(
                 [
                     EncoderLayer(
                         AttentionLayer(
-                            Attention(
+                            attention(
                                 False,
                                 factor,
                                 attention_dropout=dropout,

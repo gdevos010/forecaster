@@ -1,10 +1,12 @@
 import pandas as pd
 import torch
+from sklearn.preprocessing import StandardScaler
 from torch.utils.data import Dataset
 
-from utils.data.scalers import StandardScaler
 from utils.time_features import time_features
 from utils.time_features import time_features2
+
+# from utils.data.scalers import StandardScaler
 
 
 class ETTDataset(Dataset):

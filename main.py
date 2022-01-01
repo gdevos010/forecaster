@@ -58,7 +58,13 @@ def main(args):
     if args.save_results_path is not None:
         callbacks.append(utils.callbacks.SaveTestResultsCallback(args.save_results_path))
 
-    trainer = pl.Trainer.from_argparse_args(args, callbacks=callbacks)
+    trainer = pl.Trainer.from_argparse_args(
+        args,
+        callbacks=callbacks,
+        # fast_dev_run=True,
+        overfit_batches=10,
+        num_sanity_val_steps=2,
+    )
     trainer.fit(task, dm)
     results = trainer.test(datamodule=dm)
     return results

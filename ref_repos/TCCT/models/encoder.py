@@ -87,18 +87,18 @@ class ConvLayer(nn.Module):
 
 
 class EncoderLayer(nn.Module):
-    def __init__(self, attention, d_model, d_ff=None, dropout=0.1, activation="relu", ECSP=False):
+    def __init__(self, attention, d_model, d_ff=None, dropout=0.1, activation="relu", ecsp=False):
         super().__init__()
         d_ff = d_ff or 4 * d_model
         self.attention = attention
         self.conv1 = nn.Conv1d(in_channels=d_model, out_channels=d_ff, kernel_size=1)
         self.conv2 = nn.Conv1d(in_channels=d_ff, out_channels=d_model, kernel_size=1)
         self.conv3 = nn.Conv1d(in_channels=d_model // 2, out_channels=d_model // 2, kernel_size=1)
-        self.norm1 = nn.LayerNorm(d_model // 2) if ECSP else nn.LayerNorm(d_model)
+        self.norm1 = nn.LayerNorm(d_model // 2) if ecsp else nn.LayerNorm(d_model)
         self.norm2 = nn.LayerNorm(d_model)
         self.dropout = nn.Dropout(dropout)
         self.activation = F.relu if activation == "relu" else F.gelu
-        self.csp = ECSP
+        self.csp = ecsp
 
     def forward(self, x, attn_mask=None):
         # x [B, L, D]

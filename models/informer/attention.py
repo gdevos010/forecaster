@@ -136,7 +136,7 @@ class ProbSparseAttention(nn.Module):
         return context.transpose(2, 1).contiguous(), attention
 
 
-class LogSparceAttention(nn.Module):
+class LogSparseAttention(nn.Module):
     def __init__(
         self, mask_flag=True, factor=5, scale=None, attention_dropout=0.1, output_attention=False
     ):
