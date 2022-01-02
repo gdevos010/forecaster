@@ -4,8 +4,8 @@ import numpy as np
 import torch
 import torch.nn as nn
 
-from models.informer.masking import prob_mask
-from models.informer.masking import triangular_causal_mask
+from models.layers.masking import prob_mask
+from models.layers.masking import triangular_causal_mask
 
 
 class FullAttention(nn.Module):

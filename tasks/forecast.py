@@ -26,8 +26,14 @@ class InformerForecastTask(pl.LightningModule):
         self.model = model
         self.save_hyperparameters()
         metrics = torchmetrics.MetricCollection(
-            [torchmetrics.MeanSquaredError(), torchmetrics.MeanAbsoluteError()]
+            [
+                torchmetrics.MeanSquaredError(),
+                torchmetrics.MeanAbsoluteError(),
+                torchmetrics.MeanAbsolutePercentageError(),
+                torchmetrics.SymmetricMeanAbsolutePercentageError(),
+            ]
         )
+
         self.val_metrics = metrics.clone(prefix="Val_")
         self.test_metrics = metrics.clone(prefix="Test_")
         self.scaler = scaler

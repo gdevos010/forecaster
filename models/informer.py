@@ -2,18 +2,18 @@ import argparse
 
 import torch.nn as nn
 
-from models.informer.attention import AttentionLayer
-from models.informer.attention import FullAttention
-from models.informer.attention import LogSparseAttention
-from models.informer.attention import ProbSparseAttention
-from models.informer.decoder import Decoder
-from models.informer.decoder import DecoderLayer
-from models.informer.embedding import DataEmbedding
-from models.informer.encoder import Encoder
-from models.informer.encoder import EncoderLayer
-from models.informer.encoder import EncoderStack
-from models.informer.encoder import FocusLayer
-from models.informer.encoder import SelfAttentionDistil
+from models.layers.attention import AttentionLayer
+from models.layers.attention import FullAttention
+from models.layers.attention import LogSparseAttention
+from models.layers.attention import ProbSparseAttention
+from models.layers.decoder import Decoder
+from models.layers.decoder import DecoderLayer
+from models.layers.embedding import DataEmbedding
+from models.layers.encoder import Encoder
+from models.layers.encoder import EncoderLayer
+from models.layers.encoder import EncoderStack
+from models.layers.encoder import FocusLayer
+from models.layers.encoder import SelfAttentionDistil
 
 
 class BaseInformer(nn.Module):
@@ -87,7 +87,7 @@ class BaseInformer(nn.Module):
                     d_ff,
                     dropout=dropout,
                     activation=activation,
-                    DCSP=self.csp,
+                    DCSP=csp,
                 )
                 for _ in range(num_decoder_layers)
             ],
