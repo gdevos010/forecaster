@@ -105,7 +105,15 @@ class InformerForecastTask(pl.LightningModule):
         # https://pytorch.org/docs/stable/optim.html#how-to-adjust-learning-rate
         optimizer = torch.optim.Adam(self.parameters(), lr=self.hparams.learning_rate)
         if self.hparams.lr_scheduler == "exponential":
-            scheduler = torch.optim.lr_scheduler.ExponentialLR(optimizer, gamma=0.5)
+            scheduler = torch.optim.lr_scheduler.ExponentialLR(optimizer, gamma=0.9)
+        elif self.hparams.lr_scheduler == "cosine":
+            scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer, T_max=10)
+        elif self.hparams.lr_scheduler == "cosine_warm":
+            scheduler = torch.optim.lr_scheduler.CosineAnnealingWarmRestarts(optimizer, T_0=5)
+        elif self.hparams.lr_scheduler == "plateau":
+            scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(optimizer, mode="min")
+        elif self.hparams.lr_scheduler == "cyclic":
+            scheduler = torch.optim.lr_scheduler.CyclicLR(optimizer, base_lr=0.01, max_lr=0.01, cycle_momentum=False)
         elif self.hparams.lr_scheduler == "two_step_exp":
 
             def two_step_exp(epoch):
@@ -149,7 +157,7 @@ class InformerForecastTask(pl.LightningModule):
             "--lr_scheduler",
             type=str,
             default="exponential",
-            choices=["exponential", "two_step_exp"],
+            choices=["exponential", "cosine", "plateau", "cyclic", "cosine_warm", "two_step_exp"],
         )
         parser.add_argument(
             "--loss",
