@@ -99,6 +99,15 @@ class InformerForecastTask(pl.LightningModule):
     def loss(self, outputs, targets, **kwargs):
         if self.hparams.loss == "mse":
             return F.mse_loss(outputs, targets)
+        if self.hparams.loss == "cross_entropy":
+            return F.cross_entropy(outputs, targets)
+        if self.hparams.loss == "poisson":
+            return F.poisson_nll_loss(outputs, targets)
+        if self.hparams.loss == "l1":
+            return F.l1_loss(outputs, targets)
+        if self.hparams.loss == "smape":
+            return 2 * (outputs - targets).abs() / (outputs.abs() + targets.abs() + 1e-8)
+
         raise RuntimeError("The loss function {self.hparams.loss} is not implemented.")
 
     def configure_optimizers(self):
@@ -163,7 +172,7 @@ class InformerForecastTask(pl.LightningModule):
             "--loss",
             type=str,
             default="mse",
-            choices=["mse"],
+            choices=["mse", "cross_entropy", "poisson", "l1", "smape"],
             help="Name of loss function",
         )
         parser.add_argument(
