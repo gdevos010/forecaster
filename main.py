@@ -29,6 +29,7 @@ MODEL_DICT = {
     "informer": models.Informer,
     "informer_stack": models.InformerStack,
     "autoformer": models.Autoformer,
+    "yformer": models.Yformer,
 }
 
 
@@ -73,8 +74,7 @@ def main(args):
         num_sanity_val_steps=2,
     )
     trainer.fit(task, dm)
-    results = trainer.test(datamodule=dm, ckpt_path="best")
-    return results
+    return trainer.test(datamodule=dm, ckpt_path="best")
 
 
 if __name__ == "__main__":
@@ -86,7 +86,7 @@ if __name__ == "__main__":
         "--model_name",
         type=str,
         default="informer",
-        choices=["informer", "informer_stack", "autoformer"],
+        choices=["informer", "informer_stack", "autoformer", "yformer"],
         help="The name of the model",
     )
     parser.add_argument(

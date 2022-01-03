@@ -108,7 +108,7 @@ class InformerForecastTask(pl.LightningModule):
         if self.hparams.loss == "smape":
             return 2 * (outputs - targets).abs() / (outputs.abs() + targets.abs() + 1e-8)
 
-        raise RuntimeError("The loss function {self.hparams.loss} is not implemented.")
+        raise RuntimeError(f"The loss function {self.hparams.loss} is not implemented.")
 
     def configure_optimizers(self):
         # https://pytorch.org/docs/stable/optim.html#how-to-adjust-learning-rate
@@ -138,7 +138,7 @@ class InformerForecastTask(pl.LightningModule):
                 optimizer, lr_lambda=[two_step_exp]
             )
         else:
-            raise RuntimeError("The scheduler {self.hparams.lr_scheduler} is not implemented.")
+            raise RuntimeError(f"The scheduler {self.hparams.lr_scheduler} is not implemented.")
         return [optimizer], [scheduler]
 
     @staticmethod
