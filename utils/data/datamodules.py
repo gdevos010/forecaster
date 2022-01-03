@@ -81,8 +81,8 @@ class ETTDataModule(pl.LightningDataModule):
         return DataLoader(
             self.train_dataset,
             batch_size=self.batch_size,
-            shuffle=True,
             num_workers=self.num_workers,
+            shuffle=True,
             persistent_workers=True,
             pin_memory=True,
         )
@@ -93,8 +93,8 @@ class ETTDataModule(pl.LightningDataModule):
         return DataLoader(
             self.val_dataset,
             batch_size=self.batch_size,
-            shuffle=False,
             num_workers=self.num_workers,
+            shuffle=False,
             persistent_workers=True,
             pin_memory=True,
         )
@@ -104,6 +104,7 @@ class ETTDataModule(pl.LightningDataModule):
             self.test_dataset,
             batch_size=self.batch_size,
             num_workers=self.num_workers,
+            shuffle=False,
             persistent_workers=True,
             pin_memory=True,
             drop_last=True,

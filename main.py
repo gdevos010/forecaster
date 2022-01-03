@@ -73,7 +73,7 @@ def main(args):
         num_sanity_val_steps=2,
     )
     trainer.fit(task, dm)
-    results = trainer.test(datamodule=dm)
+    results = trainer.test(datamodule=dm, ckpt_path="best")
     return results
 
 
