@@ -122,7 +122,9 @@ class InformerForecastTask(pl.LightningModule):
         elif self.hparams.lr_scheduler == "plateau":
             scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(optimizer, mode="min")
         elif self.hparams.lr_scheduler == "cyclic":
-            scheduler = torch.optim.lr_scheduler.CyclicLR(optimizer, base_lr=0.01, max_lr=0.01, cycle_momentum=False)
+            scheduler = torch.optim.lr_scheduler.CyclicLR(
+                optimizer, base_lr=0.01, max_lr=0.01, cycle_momentum=False
+            )
         elif self.hparams.lr_scheduler == "two_step_exp":
 
             def two_step_exp(epoch):

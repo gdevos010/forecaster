@@ -20,9 +20,16 @@ DATA_DICT = {
     "ETTh2": {"path": f"{project_dir}/datasets/ETT/ETTh2.csv", "target": "OT", "frequency": "h"},
     "ETTm1": {"path": f"{project_dir}/datasets/ETT/ETTm1.csv", "target": "OT", "frequency": "t"},
     "ETTm2": {"path": f"{project_dir}/datasets/ETT/ETTm2.csv", "target": "OT", "frequency": "t"},
+    # 'WTH':   {"path": f'{project_dir}/datasets/WTH.csv', 'T': 'WetBulbCelsius', 'M': [12, 12, 12], 'S': [1, 1, 1], 'MS': [12, 12, 1]},
+    # 'ECL':   {"path": f'{project_dir}/datasets/ECL.csv', 'T': 'MT_320', 'M': [321, 321, 321], 'S': [1, 1, 1], 'MS': [321, 321, 1]},
+    # 'Solar': {"path": f'{project_dir}/datasets/solar_AL.csv', 'T': 'POWER_136', 'M': [137, 137, 137], 'S': [1, 1, 1], 'MS': [137, 137, 1]},
 }
 
-MODEL_DICT = {"informer": models.Informer, "informer_stack": models.InformerStack}
+MODEL_DICT = {
+    "informer": models.Informer,
+    "informer_stack": models.InformerStack,
+    "autoformer": models.Autoformer,
+}
 
 
 def main(args):
@@ -79,7 +86,7 @@ if __name__ == "__main__":
         "--model_name",
         type=str,
         default="informer",
-        choices=["informer", "informer_stack"],
+        choices=["informer", "informer_stack", "autoformer"],
         help="The name of the model",
     )
     parser.add_argument(

@@ -53,13 +53,13 @@ class BaseInformer(nn.Module):
         self.csp = 2 if csp else 1
 
         if attention_type == "prob":
-            Attention = ProbSparseAttention
+            attention = ProbSparseAttention
             # print('prob')
         elif attention_type == "log":
-            Attention = LogSparseAttention
+            attention = LogSparseAttention
             # print('log')
         else:
-            Attention = FullAttention
+            attention = FullAttention
             # print('full')
 
         self.encoder = None
@@ -70,7 +70,7 @@ class BaseInformer(nn.Module):
             [
                 DecoderLayer(
                     AttentionLayer(
-                        Attention(True, factor, attention_dropout=dropout, output_attention=False),
+                        attention(True, factor, attention_dropout=dropout, output_attention=False),
                         d_model // self.csp,
                         n_heads,
                         mix=mix_attention,
