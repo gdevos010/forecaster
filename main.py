@@ -4,7 +4,14 @@ import traceback
 from pathlib import Path
 
 import pytorch_lightning as pl
+from pytorch_lightning.loggers import TensorBoardLogger
 from pytorch_lightning.utilities import rank_zero_info
+from ray import tune
+from ray.tune import CLIReporter
+from ray.tune.integration.pytorch_lightning import TuneReportCallback
+from ray.tune.integration.pytorch_lightning import TuneReportCheckpointCallback
+from ray.tune.schedulers import ASHAScheduler
+from ray.tune.schedulers import PopulationBasedTraining
 
 import models
 import tasks
@@ -12,6 +19,29 @@ import utils.callbacks
 import utils.data
 import utils.email
 import utils.logging
+
+tune_callback = TuneReportCallback(
+    {
+        "loss": "Val_Loss",
+        "MAE": "Val_MeanAbsoluteError",
+        "MSE": "Val_MeanSquaredError",
+        "MAPE": "Val_MeanAbsolutePercentageError",
+        "sMAPE": "Val_SymmetricMeanAbsolutePercentageError",
+    },
+    on="validation_end",
+)
+
+tune_cp_callback = TuneReportCheckpointCallback(
+    metrics={
+        "loss": "Val_Loss",
+        "MAE": "Val_MeanAbsoluteError",
+        "MSE": "Val_MeanSquaredError",
+        "MAPE": "Val_MeanAbsolutePercentageError",
+        "sMAPE": "Val_SymmetricMeanAbsolutePercentageError",
+    },
+    filename="checkpoint",
+    on="validation_end",
+)
 
 project_dir = Path(__file__).resolve().parents[0]
 
@@ -37,9 +67,7 @@ def main(args):
     args.frequency = DATA_DICT.get(args.data).get("frequency")
     args.time_encoding = args.embedding_type == "timefeature"
     if args.max_epochs is None:
-        # follows the official implementation
-        # https://github.com/zhouhaoyi/Informer2020/blob/main/main_informer.py#L46
-        args.max_epochs = 6
+        args.max_epochs = 20
 
     dm = utils.data.ETTDataModule(data_path=DATA_DICT.get(args.data).get("path"), **vars(args))
     dm.setup(stage="fit")
@@ -65,12 +93,63 @@ def main(args):
     if args.save_results_path is not None:
         callbacks.append(utils.callbacks.SaveTestResultsCallback(args.save_results_path))
 
+    tune = "asha"
+    # tune = "pbt"
+    # tune = "none"
+
+    if tune == "asha":
+        callbacks.append(tune_callback)
+        return tune_with_asha(args, callbacks, task, dm, model)
+    # elif tune == "pbt":
+    #     callbacks.append(tune_cp_callback)
+    else:
+        return train({}, args, callbacks, task, dm)
+
+
+def tune_with_asha(args2, callbacks, task, dm, model):
+    num_samples = 10
+    config = {}
+    config.update(task.get_tuning_params())
+    config.update(model.get_tuning_params())
+
+    scheduler = ASHAScheduler(max_t=1000, grace_period=1, reduction_factor=2)
+
+    reporter = CLIReporter(
+        parameter_columns=list(config.keys()),
+        metric_columns=["loss", "MAE", "MSE", "MAPE" "sMAPE", "training_iteration"],
+    )
+
+    train_fn_with_parameters = tune.with_parameters(
+        train, args=args2, callbacks=callbacks, task=task, dm=dm
+    )
+    resources_per_trial = {"cpu": 16, "gpu": 1}
+
+    analysis = tune.run(
+        train_fn_with_parameters,
+        resources_per_trial=resources_per_trial,
+        metric="MSE",  # was loss
+        mode="min",
+        config=config,
+        num_samples=num_samples,
+        scheduler=scheduler,
+        progress_reporter=reporter,
+        name="tune_forecaster",
+    )
+
+    print("Best hyperparameters found were: ", analysis.best_config)
+
+
+def train(config, args, callbacks, task, dm):
+    args.__dict__.update(config)
+
     trainer = pl.Trainer.from_argparse_args(
         args,
         callbacks=callbacks,
         # fast_dev_run=True,
-        overfit_batches=10,
-        num_sanity_val_steps=2,
+        # overfit_batches=10,
+        # num_sanity_val_steps=2,
+        enable_progress_bar=False,
+        logger=TensorBoardLogger(save_dir=tune.get_trial_dir(), name="", version="."),
     )
     trainer.fit(task, dm)
     results = trainer.test(datamodule=dm, ckpt_path="best")

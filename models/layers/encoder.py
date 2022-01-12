@@ -19,7 +19,7 @@ class SelfAttentionDistil(nn.Module):
         self.max_pool = nn.MaxPool1d(kernel_size=3, stride=2, padding=1)
 
     def forward(self, x):
-        print(self.d)
+        # print(self.d)
         if self.d == 1:
             x = self.conv(x.permute(0, 2, 1))
             x = self.norm(x)

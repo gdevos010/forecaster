@@ -4,6 +4,10 @@ import pytorch_lightning as pl
 import torch.nn.functional as F
 import torch.optim
 import torchmetrics
+from ray import tune
+
+loss_choices = ["mse", "cross_entropy", "poisson", "l1", "smape"]
+lr_scheduler_choices = ["exponential", "cosine", "plateau", "cyclic", "cosine_warm", "two_step_exp"]
 
 
 class InformerForecastTask(pl.LightningModule):
@@ -75,7 +79,7 @@ class InformerForecastTask(pl.LightningModule):
             batch_y = self.scaler.inverse_transform(batch_y)
         metrics = self.val_metrics(outputs, batch_y)
         self.log_dict(metrics)
-        return {"outputs": outputs, "targets": batch_y}
+        return {"Val_Loss": loss, "outputs": outputs, "targets": batch_y}
 
     def test_step(self, batch, batch_idx):
         outputs, batch_y = self.shared_step(batch, batch_idx)
@@ -168,13 +172,13 @@ class InformerForecastTask(pl.LightningModule):
             "--lr_scheduler",
             type=str,
             default="exponential",
-            choices=["exponential", "cosine", "plateau", "cyclic", "cosine_warm", "two_step_exp"],
+            choices=lr_scheduler_choices,
         )
         parser.add_argument(
             "--loss",
             type=str,
             default="mse",
-            choices=["mse", "cross_entropy", "poisson", "l1", "smape"],
+            choices=loss_choices,
             help="Name of loss function",
         )
         parser.add_argument(
@@ -184,3 +188,13 @@ class InformerForecastTask(pl.LightningModule):
             help="Scale back to original values",
         )
         return parser
+
+    @staticmethod
+    def get_tuning_params():
+        config = {
+            "lr": tune.loguniform(1e-4, 1e-1),
+            "batch_size": tune.choice([16, 32, 64, 128]),
+            "loss": tune.choice(loss_choices),
+            "lr_scheduler": tune.choice(lr_scheduler_choices),
+        }
+        return config

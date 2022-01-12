@@ -1,6 +1,7 @@
 import argparse
 
 import torch.nn as nn
+from ray import tune
 
 from models.layers.attention import AttentionLayer
 from models.layers.attention import FullAttention
@@ -188,6 +189,26 @@ class BaseInformer(nn.Module):
         )
 
         return parser
+
+    @staticmethod
+    def get_tuning_params():
+        config = {
+            "enc_in": tune.choice([5, 7, 9]),
+            "dec_in": tune.choice([5, 7, 9]),
+            "d_model": tune.choice([256, 512, 1024]),
+            "n_heads": tune.choice([4, 8, 16]),
+            "num_encoder_layers": tune.choice([2, 3, 4]),
+            "num_decoder_layers": tune.choice([1, 2, 3]),
+            "d_ff": tune.choice([1024, 2048, 4096]),
+            "dropout": tune.choice([0.01, 0.05, 0.1, 0.15]),
+            "attention_type": tune.choice(["prob", "full", "log"]),
+            "activation": tune.choice(["gelu", "relu"]),
+            "mix": tune.choice([True, False]),
+            "csp": tune.choice([True, False]),
+            "dilated": tune.choice([True, False]),
+            "passthrough": tune.choice([True, False]),
+        }
+        return config
 
 
 class Informer(BaseInformer):

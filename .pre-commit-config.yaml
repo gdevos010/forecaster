@@ -45,7 +45,7 @@ repos:
      -   id: mypy
          exclude: ^ref_repos/
          args: [--ignore-missing-imports]
-         additional_dependencies: [types-PyYAML, types-requests, types-PyMySQL]
+         additional_dependencies: [types-PyYAML, types-requests, types-PyMySQL, types-filelock]
 
 
 -   repo: https://github.com/asottile/reorder_python_imports

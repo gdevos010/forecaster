@@ -5,6 +5,7 @@ import numpy as np
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
+from ray import tune
 
 from models.layers.AutoCorrelation import AutoCorrelation
 from models.layers.AutoCorrelation import AutoCorrelationLayer
@@ -176,14 +177,7 @@ class Autoformer(nn.Module):
             help="Whether to use distilling in the encoder",
         )
         parser.add_argument("--dropout", type=float, default=0.05, help="Dropout probability")
-        parser.add_argument(
-            "--attention_type",
-            "--attn",
-            type=str,
-            default="prob",
-            choices=["prob", "full", "log"],
-            help="Type of attention used in the encoder",
-        )
+
         parser.add_argument(
             "--embedding_type",
             "--embed",
@@ -199,12 +193,21 @@ class Autoformer(nn.Module):
             help="Whether to output attention in the encoder",
         )
         parser.add_argument(
-            "--mix_attention",
-            "--mix",
-            action="store_true",
-            help="Whether to mix attention in generative decoder",
-        )
-        parser.add_argument(
             "--moving_avg", type=int, default=25, help="window size of moving average"
         )
         return parser
+
+    @staticmethod
+    def get_tuning_params():
+        config = {
+            "enc_in": tune.choice([5, 7, 9]),
+            "dec_in": tune.choice([5, 7, 9]),
+            "d_model": tune.choice([32, 256, 512, 1024]),
+            "n_heads": tune.choice([1, 4, 8, 16]),
+            "num_encoder_layers": tune.choice([2, 3, 4]),
+            "num_decoder_layers": tune.choice([1, 2, 3]),
+            "d_ff": tune.choice([128, 1024, 2048, 4096, 8192]),
+            "dropout": tune.choice([0.01, 0.05, 0.1, 0.15]),
+            "activation": tune.choice(["gelu", "relu"]),
+        }
+        return config

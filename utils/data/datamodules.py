@@ -25,9 +25,11 @@ class ETTDataModule(pl.LightningDataModule):
     ):
         super().__init__()
         self._data_path = data_path
+
         self.seq_len = seq_len
         self.label_len = label_len
         self.pred_len = pred_len
+
         self.variate = variate
         self.target = target
         self.scale = scale
@@ -37,6 +39,7 @@ class ETTDataModule(pl.LightningDataModule):
         self.num_workers = num_workers
 
     def setup(self, stage: str = None):
+        print("in setup")
         if stage == "fit" or stage is None:
             self.train_dataset = ETTDataset(
                 self._data_path,
@@ -78,6 +81,7 @@ class ETTDataModule(pl.LightningDataModule):
             )
 
     def train_dataloader(self):
+        print("loading train_dataloader")
         return DataLoader(
             self.train_dataset,
             batch_size=self.batch_size,
@@ -88,8 +92,7 @@ class ETTDataModule(pl.LightningDataModule):
         )
 
     def val_dataloader(self):
-        # The official implementation shuffles the validation set
-        # https://github.com/zhouhaoyi/Informer2020/blob/main/exp/exp_informer.py#L78
+        print("loading val_dataloader")
         return DataLoader(
             self.val_dataset,
             batch_size=self.batch_size,
